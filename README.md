@@ -1,5 +1,3 @@
-Here is the formatted Markdown document based on the computations and theoretical outputs provided:
-
 # Theoretical Physics Computations: The Chiral Seam Standard Model
 
 ## 1. Baseline Parameters & System Outputs
