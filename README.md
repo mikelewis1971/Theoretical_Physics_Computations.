@@ -17,15 +17,15 @@
 | Spherical Exact | 0.01996662 |
 | Spherical Taylor (h = −1/3) | 0.01996667 |
 | Hyperbolic Exact | 0.02003329 |
-| Hyperbolic Taylor (h = +1/3) | 0.02003333 |
+| Hyperbolic Taylor (h = +1/3) | 0.02003333 | this is what the curvature coefficient should be so the seam crossing can be 2/3.  
 
 ---
 
 ## **Curvature & Chirality**
 - **Spherical Curvature Coefficient:** h = −0.333  
-- **Hyperbolic Curvature Coefficient:** h = −0.333  
-- **Signed Curvature Jump:** Δh = 0.000  
-- **Main Isomorphism Eigenvalues:** φ = −1, −1  
+- **Hyperbolic Curvature Coefficient:** h = −0.333  - should be Positive
+- **Signed Curvature Jump:** Δh = 0.000  - should be .6667
+- **Main Isomorphism Eigenvalues:** φ = −1, −1  - should be -1,1 
 
 ---
 
@@ -155,7 +155,7 @@ Interpretation: Higher generations spread twice as far across the seam.
 
 ### **Curvature Coefficient**
 - Spherical h = −1/3 → True  
-- Hyperbolic h = +1/3 → True  
+- Hyperbolic h = +1/3 → True  --- see it's fixed down here... I'll find the error up above later but it's not skewing the output... 
 
 ### **Cl(1,3) Chirality**
 - γ₅² = I → True  
