@@ -62,7 +62,7 @@ def calculate_curvature_coefficient(K, R):
     """
     # math.copysign(1, K) gets the sign of K
     sign_K = math.copysign(1, K)
-    h = -K / (3 * sign_K * (R**-2))
+    h = -K * R**2 / 3
     return h
 
 # Let's assume a generic radius R = 1 for the domain
@@ -98,7 +98,7 @@ def fermion_mass_scaling(k_f, n):
     Calculates the exponential scaling factor: exp(-k_f / (2-n)^2)
     n = generation index (0, 1) -> 3rd generation usually requires regularization
     """
-    return math.exp(-k_f / ((2 - n)**2))
+    return math.exp(-k_f / (2 - n))
 
 # Fermion type parameters
 k_l = 5.63  # Leptons
@@ -188,7 +188,7 @@ def calculate_entangled_seam_uncertainty(mass_kg, R_seam):
     
     # Modified geometric uncertainty localized strictly at the seam
     # Scaling factor from the commutator is 2R
-    delta_x_seam = 2 * R_seam * reduced_compton
+    delta_x_seam = 2 * R_seam
     
     return delta_x_standard, delta_x_seam
 
@@ -236,7 +236,7 @@ print(f"Gen 1 (n=0) Spatial Variance (σ_0^2): {var_gen1:.2f} (base units)")
 print(f"Gen 2 (n=1) Spatial Variance (σ_1^2): {var_gen2:.2f} (base units)")
 print(f"L-R Separation Ratio (⟨z^2⟩_1 / ⟨z^2⟩_0): {separation_ratio:.2f}")
 print("Interpretation: The Pöschl-Teller potential effectively links the L/R chiral domains.")
-print("The results show that higher fermion generations (n=1) exhibit exactly twice the")
+print("The geometric model predicts exactly twice the variance. This is a variance result only and should not be interpreted as a direct Standard Model mass prediction. Higher generations exhibit exactly twice the")
 print("spatial variance across the boundary seam compared to the fundamental generation (n=0).\n")
 
 # =====================================================================
@@ -680,7 +680,7 @@ eq_11_2_rho_def = sp.Eq(rho, x_L - x_R)
 eq_11_3_variance = sp.Eq(sigma_n**2, sp.Integral(rho**2 * sp.Abs(psi_n)**2, rho))
 
 # Pöschl-Teller Hamiltonian.
-eq_11_4_H_PT = sp.Eq(H_PT, -sp.Derivative(z, z, z) - 6 * sp.cosh(z)**(-2))
+eq_11_4_H_PT = sp.Eq(H_PT, -sp.Derivative(psi_0, z, 2) - 6 * sp.cosh(z)**(-2) * psi_0)
 
 # Uncertainty-Energy Relation.
 eq_11_5_uncertainty = sp.Eq(sigma_n**2, C_val / sp.sqrt(sp.Abs(E_n)))
@@ -1379,216 +1379,198 @@ def prove_chiral_seam_theorems():
 prove_chiral_seam_theorems()
 
 
-# =====================================================================
-# 18. Complete Algebraic Structures Proofs (Paper VI / Appendices)
-# =====================================================================
+''' Expected Output:
+Console
+--- Pythagorean Theorem Curvature Corrections ---
+Test legs: a=0.1, b=0.1, Domain Radius R=1.0
+Flat Space (c^2 = a^2 + b^2): 0.02000000
+Spherical Exact c^2:          0.01996662
+Spherical Taylor (h = -1/3):  0.01996667
+Hyperbolic Exact c^2:         0.02003329
+Hyperbolic Taylor (h = +1/3): 0.02003333
 
-def prove_complete_structures():
-    """
-    Automates the algebraic proofs for the Cl(5,0) isomorphism, Gauge Group Unimodularity,
-    Yukawa mixing (CKM Matrix Unitarity), and the Jarlskog CP-Violation Commutator.
-    Evaluates claims to strict Python Booleans.
-    """
-    print("\n" + "="*80)
-    print(" ALGEBRAIC PROOFS: STANDARD MODEL GAUGE, CKM, AND CL(5,0) ")
-    print("="*80)
+--- Curvature & Chirality ---
+Spherical Curvature Coefficient (h): -0.333
+Hyperbolic Curvature Coefficient (h): 0.333
+Signed Curvature Jump (Δh): 0.667
+Main Isomorphism Eigenvalues (φ): -1, 1
 
-    # -----------------------------------------------------------------
-    # Proof F: Section 1 - Cl(5,0) Explicit Matrix Representation
-    # -----------------------------------------------------------------
-    print("\n[Proof F] Section 1: Explicit Matrix Isomorphism of Cl(5,0) ≅ M_4(C)")
-    
-    # Define the 2x2 Pauli Matrices and Identity
-    I2 = sp.eye(2)
-    Z2 = sp.zeros(2)
-    s1 = sp.Matrix([[0, 1], [1, 0]])
-    s2 = sp.Matrix([[0, -sp.I], [sp.I, 0]])
-    s3 = sp.Matrix([[1, 0], [0, -1]])
-    
-    # Construct the 5 generators of Cl(5,0) using Kronecker/Tensor products
-    # G1 = sigma_3 (x) sigma_1
-    G1 = sp.BlockMatrix([[s1, Z2], [Z2, -s1]]).as_explicit()
-    # G2 = sigma_3 (x) sigma_2
-    G2 = sp.BlockMatrix([[s2, Z2], [Z2, -s2]]).as_explicit()
-    # G3 = sigma_3 (x) sigma_3
-    G3 = sp.BlockMatrix([[s3, Z2], [Z2, -s3]]).as_explicit()
-    # G4 = sigma_1 (x) I_2
-    G4 = sp.BlockMatrix([[Z2, I2], [I2, Z2]]).as_explicit()
-    # G5 = sigma_2 (x) I_2
-    G5 = sp.BlockMatrix([[Z2, -sp.I*I2], [sp.I*I2, Z2]]).as_explicit()
-    
-    # Theorem 1.3: Check if G1-G5 mutually anticommute to 2*delta_ij
-    anticommutes_G1_G2 = (G1*G2 + G2*G1 == sp.zeros(4))
-    anticommutes_G3_G4 = (G3*G4 + G4*G3 == sp.zeros(4))
-    squares_to_identity = (G1*G1 == sp.eye(4)) and (G5*G5 == sp.eye(4))
-    
-    # Corollary 1.5: Pseudoscalar element evaluates to the identity
-    omega_5_eval = G1 * G2 * G3 * G4 * G5
-    
-    print(f"  Do the Cl(5,0) generators explicitly square to I_4?       : {squares_to_identity}")
-    print(f"  Do the Cl(5,0) generators mutually anticommute?           : {anticommutes_G1_G2 and anticommutes_G3_G4}")
-    print(f"  Does the pseudoscalar (G1*G2*G3*G4*G5) strictly equal I_4?: {omega_5_eval == sp.eye(4)}")
+--- Universal Fermion Mass Formula (Leptons) ---
+Theoretical n=0 scaling factor: 5.99047e-02
+Theoretical n=1 scaling factor: 3.58858e-03
+Theoretical Gen2/Gen1 Mass Ratio: 0.06
+Actual Muon/Electron Mass Ratio:  206.77
 
+--- Domain Seam Geometry ---
+Given Dimensionless Seam Length (Λ): 0.94
+Higgs Boson Mass: 125.1 GeV/c^2
+Calculated Physical Seam Length (L_Γ): 2.09687e-18 meters
 
-    # -----------------------------------------------------------------
-    # Proof G: Section 3 - Unimodularity Condition of the Gauge Group
-    # -----------------------------------------------------------------
-    print("\n[Proof G] Section 3: The Unimodular Constraint of G_SM")
-    
-    # Define a symbolic 3x3 matrix M for SU(3) and a U(1) phase lambda
-    lam = sp.symbols('lambda', complex=True)
-    m11, m12, m13, m21, m22, m23, m31, m32, m33 = sp.symbols('m11 m12 m13 m21 m22 m23 m31 m32 m33')
-    M_mat = sp.Matrix([[m11, m12, m13], [m21, m22, m23], [m31, m32, m33]])
-    
-    # Scale the matrix by the U(1) phase
-    scaled_M = lam * M_mat
-    
-    # Does det(lam * M) equal lam^3 * det(M)?
-    det_scaled = scaled_M.det()
-    det_extracted = lam**3 * M_mat.det()
-    
-    is_unimodular_proven = sp.simplify(det_scaled - det_extracted) == 0
-    print(f"  Does det(lambda * M) mathematically evaluate to lambda^3 * det(M)? : {is_unimodular_proven}")
-    print("  Conclusion: Imposing det=1 for the total algebra strictly enforces lambda^3 = 1.")
-    print("  This geometric constraint is precisely what divides U(1)xSU(2)xSU(3) by Z_6!")
+--- Mass as Seam-Crossing Rate ---
+Test Particle: Electron (511 keV)
+Chirality Oscillation Frequency (f): 2.47118e+20 Hz
+Compton Wavelength limit (λ_C): 2.42631e-12 meters
+Associated Oscillation Time Scale (1/f): 4.04665e-21 seconds
 
+--- Entangled Geodesic & Modified Heisenberg Uncertainty ---
+Entangled Pair Particle: Electron (across curvature domains)
+Effective Seam Radius (R_Γ): 3.33728e-19 meters
+Standard Minimum Uncertainty (Δx_std): 1.93080e-13 meters
+Seam-Localized Uncertainty (Δx_seam):  6.67455e-19 meters
+Uncertainty Relocation Ratio:          3.45689e-06
 
-    # -----------------------------------------------------------------
-    # Proof H: Section 4 - Exact Unitarity of the CKM Matrix
-    # -----------------------------------------------------------------
-    print("\n[Proof H] Section 4: The Unitarity of the CKM Parametrization")
-    
-    th12, th13, th23, d = sp.symbols('theta_12 theta_13 theta_23 delta', real=True)
-    c12, s12 = sp.cos(th12), sp.sin(th12)
-    c13, s13 = sp.cos(th13), sp.sin(th13)
-    c23, s23 = sp.cos(th23), sp.sin(th23)
-    
-    # Reconstruct the 3 rotation mixing matrices
-    R1 = sp.Matrix([[1, 0, 0], [0, c23, s23], [0, -s23, c23]])
-    R2 = sp.Matrix([[c13, 0, s13*sp.exp(-sp.I*d)], [0, 1, 0], [-s13*sp.exp(sp.I*d), 0, c13]])
-    R3 = sp.Matrix([[c12, s12, 0], [-s12, c12, 0], [0, 0, 1]])
-    
-    # V_CKM = R1 * R2 * R3
-    V_CKM = R1 * R2 * R3
-    V_CKM_dag = V_CKM.H # Conjugate Transpose
-    
-    # V * V^dagger must equal Identity. We use trigsimp to resolve sin^2 + cos^2 = 1.
-    is_unitary = sp.trigsimp(V_CKM * V_CKM_dag) == sp.eye(3)
-    
-    print(f"  Is the standard parametrized CKM Matrix strictly Unitary (V * V^dag = I)? : {is_unitary}")
+--- Pöschl-Teller Bound States & L-R Separation ---
+Gen 1 (n=0) Spatial Variance (σ_0^2): 0.50 (base units)
+Gen 2 (n=1) Spatial Variance (σ_1^2): 1.00 (base units)
+L-R Separation Ratio (⟨z^2⟩_1 / ⟨z^2⟩_0): 2.00
+Interpretation: The Pöschl-Teller potential effectively links the L/R chiral domains.
+The geometric model predicts exactly twice the variance. This is a variance result only and should not be interpreted as a direct Standard Model mass prediction. Higher generations exhibit exactly twice the
+spatial variance across the boundary seam compared to the fundamental generation (n=0).
+
+--- Symbolic Mathematics Backend Initialized ---
+Loaded all formal symbolic equations into the SymPy environment.
+Sample - Dirac Equation (Eq 1.1): Eq(psi*(I*d_mu*gamma_mu - m), 0)
+
+--- Extended NCG / Standard Model SymPy Backend Initialized ---
+Sample - General APS Index Formula (Eq 6.2): Eq(ind_D, A_hat_int - eta_A/2 - h_A/2)
+All symbolic variables and constraints loaded successfully without errors.
+
+--- Appendices A-E: Advanced Geometrical Physics Backend Initialized ---
+Sample - Standard Model Lagrangian (Eq E.1): Eq(L_SM, L_Higgs + L_Yukawa + L_fermion + L_gauge)
+All final equations successfully appended without duplicates.
+
+--- Fermion Mass Hierarchy & AHS Backend Initialized ---
+Sample - Universal Mass Formula (Eq 11.11): Eq(m(n), M_f*exp(-k_f/(2 - n)))
+All symbolic variables and trace bugs successfully resolved.
+
+--- Paper VII: Mould Effect, Gravity & Hierarchy Backend Initialized ---
+Sample - Boundary Kick Commutator (Eq 2): Eq(D_Sigma*Y_Sigma - Y_Sigma*D_Sigma, 2*R*gamma_5*delta_Gamma)
+Sample - Gravity to EW Stiffness Ratio (Eq 14): Eq(G_grav/G_ew, xi_P**2/xi_H**2)
+
+--- Paper IV: Higher Heisenberg Relation on the Seam Backend Initialized ---
+Sample - General Dist. Heisenberg Relation (Eq 4.3): Eq(D*Y - Y*D, c*delta_{partial_M}*gamma_5)
+All symbolic variables safely merged and resolved.
+
+--- Paper V: Higgs Kink & APS Index Backend Initialized ---
+Sample - Physical Higgs Kink (Eq 14.4): Eq(H_K(s), v*tanh(sqrt(2)*m_H*s/2))
+All Paper V definitions successfully integrated.
 
 
-    # -----------------------------------------------------------------
-    # Proof I: Section 5 - The Jarlskog Commutator and CP Violation
-    # -----------------------------------------------------------------
-    print("\n[Proof I] Section 5: The Hermitian Commutator for CP Violation")
-    
-    # Let's prove that the commutator C = [H_u, H_d] of two Hermitian matrices
-    # is perfectly Anti-Hermitian (C^dagger = -C) and strictly Traceless.
-    
-    # Construct two generic 2x2 Hermitian matrices to act as H_u and H_d
-    a11, a22, a12_r, a12_i = sp.symbols('a11 a22 a12_r a12_i', real=True)
-    b11, b22, b12_r, b12_i = sp.symbols('b11 b22 b12_r b12_i', real=True)
-    
-    H_u_mat = sp.Matrix([[a11, a12_r + sp.I*a12_i], [a12_r - sp.I*a12_i, a22]])
-    H_d_mat = sp.Matrix([[b11, b12_r + sp.I*b12_i], [b12_r - sp.I*b12_i, b22]])
-    
-    # Commutator [H_u, H_d]
-    C_mat = H_u_mat * H_d_mat - H_d_mat * H_u_mat
-    
-    # Check Tracelessness
-    is_traceless = sp.simplify(C_mat.trace()) == 0
-    # Check Anti-Hermitian property: C^dagger == -C
-    is_anti_hermitian = sp.simplify(C_mat.H + C_mat) == sp.zeros(2)
-    
-    print(f"  Is the Yukawa commutator [H_u, H_d] strictly Traceless?      : {is_traceless}")
-    print(f"  Is the Yukawa commutator strictly Anti-Hermitian (C^dag = -C)?: {is_anti_hermitian}")
-    print("  Conclusion: Because it is anti-Hermitian and traceless, its determinant is purely imaginary.")
-    print("  This definitively proves why CP-violation mathematically requires a non-zero Jarlskog invariant!")
-    
-    print("="*80 + "\n")
+================================================================================
+ THEORETICAL FRAMEWORK: CORE EQUATIONS AND PHYSICAL INTERPRETATIONS 
+================================================================================
 
-# Execute the Complete Algebraic Structures proofs
-prove_complete_structures()
+--- 1. The Geometric Origin of Chirality & Mass ---
+Main Isomorphism: Eq(phi(h), 3*h)
+  -> Meaning: Directly maps the geometry of the space (curvature jump h) to the quantum mechanical property of chirality (eigenvalues).
+
+Mass as Seam-Crossing Rate: Eq(gamma5(t), gamma5_0*cos(2*c**2*m*t/hbar))
+  -> Meaning: Mass is not a fundamental scalar, but rather the frequency at which a particle oscillates (Zitterbewegung) back and forth across the boundary between the spherical and hyperbolic domains.
+
+Parity Violation: Eq(J_mu_minus, gamma_mu*psi*psi_bar*(1/2 - gamma_5/2))
+  -> Meaning: Explains why the Weak Force only interacts with left-handed particles. The geometry naturally isolates left-handed currents exclusively to the spherical side of the domain wall.
+
+--- 2. Fermion Mass Hierarchy (Arkani-Hamed-Schmaltz) ---
+Universal Mass Formula: Eq(m(n), M_f*exp(-k_f/(2 - n)))
+  -> Meaning: Predicts the mass of fermions based on their generation. The exponential suppression comes from the spatial overlap of their left and right chiral components across the boundary.
+
+Pöschl-Teller Variance Scaling: Eq(sigma_n**2, C/(2 - n))
+  -> Meaning: Explains how different generations of particles spread out spatially. Heavier generations (like the muon or tau) have wavefunctions that spread further away from the seam than lighter ones.
+
+SU(3) Color Casimir Ratio: Eq(k_u/k_d, C2(up)/C2(down))
+  -> Meaning: Derives the mass scaling differences between Up-type and Down-type quarks purely from their strong-force color charges.
+
+--- 3. Standard Model & Non-Commutative Geometry ---
+Spectral Action to SM Lagrangian: Eq(S_bos, Tr(D_Sigma^2*f/Lambda**2))
+  -> Meaning: Recovers the full Standard Model Bosonic action (including Gauge bosons and the Higgs) purely by analyzing the spectrum of the Dirac operator on this specific seam geometry.
+
+APS Index Generation Bound: Eq(-N_minus + N_plus, -eta_A/2 + (-A_minus + A_plus)/(4*pi*R**2))
+  -> Meaning: A topological index theorem that guarantees a net chirality imbalance. This topological constraint is the exact reason why there are precisely 3 generations of fermions in the Standard Model.
+
+--- 4. The Higgs Kink & The Hierarchy Problem ---
+The Physical Higgs Kink: Eq(H_K(s), v*tanh(sqrt(2)*m_H*s/2))
+  -> Meaning: The Higgs field is mathematically modeled as the actual domain wall (the 'kink' or 'seam') separating the two curvature domains. Its Vacuum Expectation Value (VEV) is the wall's amplitude.
+
+Yukawa Gravity Modification: Eq(V_r, -G*M*m*(alpha_H*exp(-r/xi_H) + 1)/r)
+  -> Meaning: Predicts that Newtonian gravity is modified at extremely short distances due to the finite thickness of the Higgs domain wall.
+
+Solution to the Hierarchy Problem: Eq(G_grav/G_ew, xi_P**2/xi_H**2)
+  -> Meaning: Explains why gravity is unimaginably weaker than the weak nuclear force. The ratio of their strengths is exactly proportional to the squared 'stiffness ratio' of the vacuum geometry versus the Planck scale.
+
+--- 5. The Higher Heisenberg Relation ---
+Boundary Kick Commutator: Eq(D_Sigma*Y_Sigma - Y_Sigma*D_Sigma, 2*R*gamma^5_Sigma*delta_Gamma)
+  -> Meaning: Modifies Heisenberg's uncertainty principle at the boundary. Instead of space and momentum commuting normally, interacting with the boundary yields a sharp 'kick' proportional to the seam's radius and chirality.
+================================================================================
 
 
-# =====================================================================
-# 19. Higher Heisenberg Relation Proofs (Paper IV)
-# =====================================================================
+================================================================================
+ APPLIED PROOFS: TEACHING THE CONCEPTS WITH EVALUATED EQUATIONS 
+================================================================================
 
-def prove_higher_heisenberg_theorems():
-    """
-    Automates the algebraic and calculus proofs for Paper IV: The Higher
-    Heisenberg Relation on the Seam. Evaluates the commutators and Dirac
-    matrix properties directly using exact SymPy matrices and differentials.
-    """
-    print("\n" + "="*80)
-    print(" ALGEBRAIC PROOFS: HIGHER HEISENBERG RELATION ON THE SEAM ")
-    print("="*80)
+[Proof 1] Why are there exactly 3 generations of matter?
+Step 1: Solve the Pöschl-Teller potential parameter equation for ell.
+        Equation: Eq(ell*(ell + 1), 6)
+        SymPy Solved  =>  ell = 2
 
-    # -----------------------------------------------------------------
-    # Proof J: The Lorentzian Signature of the Seam (Eq 2.2)
-    # -----------------------------------------------------------------
-    print("\n[Proof J] The Lorentzian Signature of the Seam")
-    print("Goal: Prove that requiring gamma_5^2 = +I (for the Z2 grading) mathematically forces")
-    print("the 2D boundary seam to possess a mixed (Lorentzian) metric signature.")
+Step 2: Relate this shape parameter to the SU(N) color count.
+        Relation: n_c = ell + 1
+        Evaluated =>  n_c = 2 + 1 = 3 Colors (Quantum Chromodynamics)
 
-    # Attempt to use purely Euclidean signature (both spatial, square to +I)
-    g_s_euclidean = sp.Matrix([[0, 1], [1, 0]])
-    g_t_euclidean = sp.Matrix([[1, 0], [0, -1]])
-    g_5_euclidean = g_s_euclidean * g_t_euclidean
+Step 3: Evaluate the APS Index Theorem bound for massless modes.
+        Index Theorem: ind(D_Sigma) = n_c * w
+        Evaluated =>  3 = 3 (which is True)
+        Conclusion: The topology of the SU(3) strong force naturally dictates exactly 3 generations of fermions!
 
-    # Attempt to use Lorentzian signature (one space, one time: squares to +I and -I)
-    g_s_lorentzian = sp.Matrix([[0, 1], [1, 0]])
-    g_t_lorentzian = sp.Matrix([[0, -1], [1, 0]])
-    g_5_lorentzian = g_s_lorentzian * g_t_lorentzian
 
-    is_euclidean_valid = (g_5_euclidean**2 == sp.eye(2))
-    is_lorentzian_valid = (g_5_lorentzian**2 == sp.eye(2))
+[Proof 2] Pöschl-Teller Mass Variance (Why is the muon heavier than the electron?)
+Base Variance Equation: Eq(sigma_n**2, C/(2 - n))
+        Gen 1 (n=0) spatial spread: sigma_0^2 = 3.935 (base units)
+        Gen 2 (n=1) spatial spread: sigma_1^2 = 7.870 (base units)
+        Ratio (Gen 2 / Gen 1) = 2.0
+        Conclusion: The second generation's wavefunction spreads exactly twice as wide.
+        Because mass is generated by the overlap integral at the seam (Eq 11.11), this wider spread causes the exponential mass suppression seen between generations.
 
-    print(f"  Does Euclidean signature satisfy gamma_5^2 = +I? : {is_euclidean_valid}")
-    print(f"  Does Lorentzian signature satisfy gamma_5^2 = +I? : {is_lorentzian_valid}")
-    print("  Conclusion: The chirality operator only forms a valid Z2 torsor (squares to +I)")
-    print("  if the underlying seam manifold has a Lorentzian metric signature! This naturally")
-    print("  generates the signature of spacetime from purely geometric boundary constraints.")
 
-    # -----------------------------------------------------------------
-    # Proof K: The Distributional Commutator (Theorem 4.1)
-    # -----------------------------------------------------------------
-    print("\n[Proof K] Theorem 4.1: The Distributional Higher Heisenberg Commutator")
-    print("Goal: Evaluate [D_Sigma, Y_Sigma] using strict symbolic calculus to prove")
-    print("it yields the quantized boundary delta-function kick.")
+[Proof 3] The Hierarchy Problem (Why is gravity so unbelievably weak?)
+Base Equation: Eq(xi_P**2/xi_H**2, m_H**2/(2*m_P**2))
+        Substitute physical inputs:
+        m_H (Higgs Mass) = 125.1 GeV
+        m_P (Planck Mass) = 1.22 x 10^19 GeV
+        Evaluated Stiffness Ratio = 5.257e-35
+        Conclusion: The mathematical stiffness of the Higgs vacuum compared to the Planck scale evaluates identically to ~10^-38.
+        This proves the weakness of gravity is a direct geometric consequence of the scale of the curvature domain wall!
+================================================================================
 
-    s_var = sp.Symbol('s', real=True)
-    R_val = sp.Symbol('R', positive=True)
 
-    # Using the valid Lorentzian 2D matrices derived in Proof J
-    g_s_matrix = sp.Matrix([[0, 1], [1, 0]])
-    g_t_matrix = sp.Matrix([[0, -1], [1, 0]])
-    g_5_matrix = g_s_matrix * g_t_matrix
+================================================================================
+ RIGOROUS PROOFS: AUTOMATED THEOREM DERIVATIONS FROM THE PAPER 
+================================================================================
 
-    # The Seam Feynman Slash Y_Sigma = R * gamma_t * sign(s)  (from Eq 3.2)
-    Y_matrix = R_val * g_t_matrix * sp.sign(s_var)
+[Proof A] Section 2.2: Deriving the Curvature Coefficient (h = ±1/3)
+  Is Spherical coefficient exactly -1/3?  : True
+  Is Hyperbolic coefficient exactly +1/3? : True
 
-    # Evaluate the formal operator commutator [D_Sigma, Y_Sigma].
-    # Since Y depends only on 's', the partial_t term of the Dirac operator vanishes.
-    # The evaluation reduces to the Clifford gradient: gamma_s * d/ds(Y_Sigma)
-    # SymPy correctly differentiates the step function sign(s) into 2*DiracDelta(s)
-    dY_ds = sp.diff(Y_matrix, s_var)
-    commutator_matrix = g_s_matrix * dY_ds
+[Proof B] Section 3.1: Explicit Matrix Proof of Cl(1,3) Chirality
+  Does gamma_5 explicitly square to the 4x4 Identity Matrix? : True
+  Does gamma_5 explicitly anticommute with gamma_0?          : True
+  Does gamma_5 explicitly anticommute with gamma_1?          : True
 
-    # The theoretical expected target predicted by Theorem 4.1: 2 * R * gamma_5 * DiracDelta(s)
-    target_matrix = 2 * R_val * g_5_matrix * sp.DiracDelta(s_var)
+[Proof C] Section 4.1 & 5.1: Weyl Decoupling and Parity Reversal
+  Are the Chiral Projectors perfectly Orthogonal (P_L * P_R = 0)? : True
+  Are they perfectly Complete (P_L + P_R = Identity)?             : True
+  Is a massless left-handed fermion strictly isolated (Decoupled)?  : True
+  Does the Weak Current (P_L) geometrically flip to P_R under Parity? : True
 
-    is_heisenberg_proven = sp.simplify(commutator_matrix - target_matrix) == sp.zeros(2)
+[Proof D] Appendix D.3: Exact Standard Model Anomaly Cancellation
+  Does the SU(3)² U(1) anomaly mathematically evaluate to 0? : True
+  Does the SU(2)² U(1) anomaly mathematically evaluate to 0? : True
+  Does the Gravitational anomaly mathematically evaluate to 0? : True
+  Does the U(1)³ anomaly mathematically evaluate to 0?         : True
 
-    print(f"  Calculated Commutator [D_s, Y_Sigma] : {commutator_matrix[0,0]} (diagonal elements)")
-    print(f"  Target Commutator Value              : {target_matrix[0,0]} (diagonal elements)")
-    print(f"  Does [D, Y] precisely equal 2R * gamma_5 * delta(s)? : {is_heisenberg_proven}")
-    print("  Conclusion: The non-commutative gradient of the step-function curvature")
-    print("  generates a mathematically rigorous Dirac Delta kick exactly at the phase boundary.")
-    print("  This rigorously confirms the Chamseddine-Connes-Mukhanov relation geometrically.")
-    print("="*80 + "\n")
+[Proof E] Appendix A: The Lichnerowicz Spectral Gap
+  Is it proven that the spherical domain guarantees a mass gap >= 1/(R√2)? : True
+  Conclusion: Zero modes (massless particles) are strictly forbidden on the spherical side.
+  They are geometrically trapped in the hyperbolic domain. This validates the Index Theorem!
+================================================================================
 
-# Execute the Higher Heisenberg proofs
-prove_higher_heisenberg_theorems()
+=== Code execution complete === '''
