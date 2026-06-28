@@ -1,10 +1,14 @@
-The Chiral Seam Masterclass
+[README.md](https://github.com/user-attachments/files/29439961/README.md)
+[Upload# The Chiral Seam Masterclass
+
 A complete, self-verifying Python walkthrough of the eight-paper chiral-seam
 framework: from the two-body Heisenberg uncertainty principle to the
 Standard Model gauge group, the Higgs mechanism, three fermion generations,
 the fermion mass hierarchy, emergent gravity, and (as an explicitly labeled
 conjecture) dark matter and dark energy.
-Running it
+
+## Running it
+
 ```bash
 pip install numpy scipy sympy --break-system-packages   # if not already installed
 
@@ -18,6 +22,7 @@ python3 masterclass.py --no-pause
 python3 masterclass.py --lecture 5
 # (equivalently: python3 lecture_05_higgs_kink.py)
 ```
+
 Every lecture module can also be run standalone:
 ```bash
 python3 lecture_01_two_body.py
@@ -25,82 +30,99 @@ python3 lecture_02_seam_geometry.py
 ...
 python3 lecture_08_dark_sector.py
 ```
-Structure
-File	Paper	Topic
-`constants.py`	--	shared physical constants and print helpers
-`lecture_01_two_body.py`	I	two-body Heisenberg algebra, the pair axis
-`lecture_02_seam_geometry.py`	II	curvature coefficients h=±1/3, chirality isomorphism γ⁵=3h, mass as crossing rate, parity violation
-`lecture_03_algebraic_structures.py`	III	Cl(5,0), Standard Model gauge group, CKM unitarity, Jarlskog/CP, anomaly cancellation, Lichnerowicz spectral gap
-`lecture_04_higher_heisenberg.py`	IV	the higher Heisenberg relation [D,Y]=γ⁵ on the seam, Pati-Salam reconstruction
-`lecture_05_higgs_kink.py`	V	the Higgs kink, Pöschl-Teller spectrum, three colors, three generations
-`lecture_06_mass_hierarchy.py`	VI	the universal fermion mass formula, SU(3) Casimir ratio prediction
-`lecture_07_mould_gravity.py`	VII	the Mould chain-fountain effect, Berry phase Hamiltonian, emergent graviton, Yukawa gravity correction, hierarchy problem
-`lecture_08_dark_sector.py`	VIII	dark matter (Berry curvature) and dark energy (time-variant Berry phase) from the same connection that gives gravity
-`masterclass.py`	--	main runner, walks through all 8 lectures in order
-`BUGFIXES.md`	--	every mathematical error caught and fixed during construction
-Visuals
+
+## Structure
+
+| File | Paper | Topic |
+|---|---|---|
+| `constants.py` | -- | shared physical constants and print helpers |
+| `lecture_01_two_body.py` | I | two-body Heisenberg algebra, the pair axis |
+| `lecture_02_seam_geometry.py` | II | curvature coefficients h=±1/3, chirality isomorphism γ⁵=3h, mass as crossing rate, parity violation |
+| `lecture_03_algebraic_structures.py` | III | Cl(5,0), Standard Model gauge group, CKM unitarity, Jarlskog/CP, anomaly cancellation, Lichnerowicz spectral gap |
+| `lecture_04_higher_heisenberg.py` | IV | the higher Heisenberg relation [D,Y]=γ⁵ on the seam, Pati-Salam reconstruction |
+| `lecture_05_higgs_kink.py` | V | the Higgs kink, Pöschl-Teller spectrum, three colors, three generations |
+| `lecture_06_mass_hierarchy.py` | VI | the universal fermion mass formula, SU(3) Casimir ratio prediction |
+| `lecture_07_mould_gravity.py` | VII | the Mould chain-fountain effect, Berry phase Hamiltonian, emergent graviton, Yukawa gravity correction, hierarchy problem |
+| `lecture_08_dark_sector.py` | VIII | dark matter (Berry curvature) and dark energy (time-variant Berry phase) from the same connection that gives gravity |
+| `masterclass.py` | -- | main runner, walks through all 8 lectures in order |
+| `BUGFIXES.md` | -- | every mathematical error caught and fixed during construction |
+
+## Visuals
+
 Every lecture now ends with its own `visualize()` step, called automatically
 from `run()`, which renders the lecture's signature figure(s) using the real
 numbers the lecture just proved (never hard-coded). Figures are saved to
 `figures/` as PNGs and also displayed inline if a GUI/notebook backend is
 available. Highlights:
-Lecture 2: the curvature step h(s) with γ⁵'s eigenvalues overlaid on a
-twin axis, so γ⁵=3h is visible before it's read; plus the chirality
-oscillation frequency for electron/muon/tau side by side.
-Lecture 5 (the flagship): three Pöschl-Teller bound-state wavefunctions
-drawn sitting in the −6·sech²(z) well at their correct energies (−4,−1,0),
-labeled "generation 1/2/3" — the single image meant to make "why three
-generations" visually self-evident — plus the bug-fix comparison plot.
-Lecture 6: the fermion mass staircase (log scale, all 9 quarks/leptons)
-with the fitted k-values, and an honestly red-stamped panel showing the
-t/b cross-check failing by ~13x exactly as documented in BUGFIXES.md.
-Lecture 8: a real-looking galaxy rotation curve where the Newtonian and
-flat-asymptote curves diverge and the full quadratic blends between them —
-"dark matter without dark matter," and the dark-energy crossover plot.
+
+- **Lecture 2**: the curvature step h(s) with γ⁵'s eigenvalues overlaid on a
+  twin axis, so γ⁵=3h is visible before it's read; plus the chirality
+  oscillation frequency for electron/muon/tau side by side.
+- **Lecture 5 (the flagship)**: three Pöschl-Teller bound-state wavefunctions
+  drawn sitting in the −6·sech²(z) well at their correct energies (−4,−1,0),
+  labeled "generation 1/2/3" — the single image meant to make "why three
+  generations" visually self-evident — plus the bug-fix comparison plot.
+- **Lecture 6**: the fermion mass staircase (log scale, all 9 quarks/leptons)
+  with the fitted k-values, and an honestly red-stamped panel showing the
+  t/b cross-check failing by ~13x exactly as documented in BUGFIXES.md.
+- **Lecture 8**: a real-looking galaxy rotation curve where the Newtonian and
+  flat-asymptote curves diverge and the full quadratic blends between them —
+  "dark matter without dark matter," and the dark-energy crossover plot.
+
 Run any lecture standalone to regenerate just its figures:
 ```bash
 python3 lecture_05_higgs_kink.py     # produces figures/05_*.png
 ```
+
+
 
 Every numbered equation from the source papers is implemented as a Python
 function. Every claim is backed by an explicit `[PASS]`/`[FAIL]` check —
 on explicit matrices (Clifford algebras, gamma matrices, CKM parametrization),
 explicit symbolic derivations (SymPy Taylor expansions, ODE solving), or
 explicit numerical models (finite-difference commutators, rotation curves).
-Where a check failed during construction, it was treated as a real bug,
+
+Where a check failed during construction, **it was treated as a real bug**,
 investigated, and fixed — not papered over. Four such bugs were caught this
 way; see `BUGFIXES.md` for the full account of each one, in the same spirit
 as the rest of the masterclass: showing the wrong math, the diagnosis, and
 the fix, rather than hiding the process.
+
 Where a result is a genuine open conjecture of the framework (e.g. the
 CP-violation/Berry-phase/seam-holonomy triple connection in Lecture 8, or the
 order-of-magnitude — not precision — estimate of the galactic Berry coupling
 κ), this is stated explicitly rather than dressed up as a proof.
-What is proved vs. what is conjectured
-Proved (verified on explicit matrices/integrals/symbolic algebra):
-[ρ,P]=0, [X,p]=0 from single-particle quantum mechanics (Lecture 1)
-h=-1/3 (spherical), h=+1/3 (hyperbolic), |Δh|=2/3 (Lecture 2)
-γ⁵=3h chirality isomorphism, mass as Compton-frequency seam crossing (Lecture 2)
-Parity violation as a forced consequence of one-sided coupling (Lecture 2)
-Cl(5,0) explicit construction, G_SM=SU(3)×SU(2)×U(1)/ℤ₆, CKM unitarity,
-Jarlskog anti-Hermitian structure, exact SM anomaly cancellation (Lecture 3)
-[D_Σ,Y_Σ]=2Rγ⁵δ_Γ as a delta-function commutator (Lecture 4, numeric+symbolic)
-The Higgs kink H_K(s)=v·tanh(sm_H/2), the Pöschl-Teller parameter ℓ=2,
-n_c=3, N_gen=3 via the APS index (Lecture 5)
-The universal fermion mass formula fit to all 9 quark/lepton masses,
-matching reference k-values to ~1% (Lecture 6)
-The Mould-effect structural isomorphisms, the equivalence principle,
-the Planck-force bandwidth limit, the hierarchy-as-stiffness-ratio (Lecture 7)
-The dark-matter rotation-curve quadratic and its flat asymptote (Lecture 8)
-Explicitly labeled as conjecture / open / approximate:
-The CP-violation = seam-holonomy = Berry-phase triple identification (Lecture 8)
-The galactic Berry coupling κ from first-principles surface density
-(order-of-magnitude only, Lecture 8)
-The exact numerical seam manifold / Floquet eigenfunction computation
-needed to pin down precision fermion masses beyond the k-fit (Lecture 6)
-The t/b quark mass ratio cross-check, which fails by ~13× and is
-attributed to SU(2) isospin structure not captured by the pure
-generation-hierarchy formula (Lecture 6, stated as an honest limitation)
+
+## What is proved vs. what is conjectured
+
+**Proved (verified on explicit matrices/integrals/symbolic algebra):**
+- [ρ,P]=0, [X,p]=0 from single-particle quantum mechanics (Lecture 1)
+- h=-1/3 (spherical), h=+1/3 (hyperbolic), |Δh|=2/3 (Lecture 2)
+- γ⁵=3h chirality isomorphism, mass as Compton-frequency seam crossing (Lecture 2)
+- Parity violation as a forced consequence of one-sided coupling (Lecture 2)
+- Cl(5,0) explicit construction, G_SM=SU(3)×SU(2)×U(1)/ℤ₆, CKM unitarity,
+  Jarlskog anti-Hermitian structure, exact SM anomaly cancellation (Lecture 3)
+- [D_Σ,Y_Σ]=2Rγ⁵δ_Γ as a delta-function commutator (Lecture 4, numeric+symbolic)
+- The Higgs kink H_K(s)=v·tanh(sm_H/2), the Pöschl-Teller parameter ℓ=2,
+  n_c=3, N_gen=3 via the APS index (Lecture 5)
+- The universal fermion mass formula fit to all 9 quark/lepton masses,
+  matching reference k-values to ~1% (Lecture 6)
+- The Mould-effect structural isomorphisms, the equivalence principle,
+  the Planck-force bandwidth limit, the hierarchy-as-stiffness-ratio (Lecture 7)
+- The dark-matter rotation-curve quadratic and its flat asymptote (Lecture 8)
+
+**Explicitly labeled as conjecture / open / approximate:**
+- The CP-violation = seam-holonomy = Berry-phase triple identification (Lecture 8)
+- The galactic Berry coupling κ from first-principles surface density
+  (order-of-magnitude only, Lecture 8)
+- The exact numerical seam manifold / Floquet eigenfunction computation
+  needed to pin down precision fermion masses beyond the k-fit (Lecture 6)
+- The t/b quark mass ratio cross-check, which fails by ~13× and is
+  attributed to SU(2) isospin structure not captured by the pure
+  generation-hierarchy formula (Lecture 6, stated as an honest limitation)
+ing README.md…]()
+
+
 
 # Theoretical Physics Computations: The Chiral Seam Standard Model
 
