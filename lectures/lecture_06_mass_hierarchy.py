@@ -239,6 +239,51 @@ def top_bottom_ratio_check(k_u, k_d, Lambda_u, Lambda_d):
     check("Cross-check fails as documented (discrepancy > 5)", factor > 5)
 
 
+def visualize(k_l, k_u, k_d):
+    """Plot: log-scale mass staircase for all 9 quarks/leptons with the fitted
+    exponential curve, plus an honestly-stamped t/b cross-check limitation."""
+    import math
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from viz_helpers import show_and_save, NEUTRAL, SEAM_LINE, ACCENT_GEN, limitation_stamp
+
+    fig, ax = plt.subplots(figsize=(9, 5.2))
+    ax.set_title("The Fermion Mass Staircase:  m_n = M_f · exp(−k_f/(2−n))",
+                 fontsize=12.5, fontweight="bold", color=NEUTRAL)
+    groups = [
+        ("Leptons", [m_electron_eV, m_muon_eV, m_tau_eV], ACCENT_GEN[0], k_l),
+        ("Up quarks", [m_up_eV, m_charm_eV, m_top_eV], ACCENT_GEN[1], k_u),
+        ("Down quarks", [m_down_eV, m_strange_eV, m_bottom_eV], ACCENT_GEN[2], k_d),
+    ]
+    width = 0.22
+    x_base = np.arange(3)
+    for i, (label, masses, color, k_f) in enumerate(groups):
+        xs = x_base + (i - 1) * width
+        ax.bar(xs, masses, width=width, color=color, alpha=0.85, label=f"{label}  (k={k_f:.2f})")
+    ax.set_yscale("log")
+    ax.set_xticks(x_base)
+    ax.set_xticklabels(["Gen 1 (n=2)", "Gen 2 (n=1)", "Gen 3 (n=0)"])
+    ax.set_ylabel("mass (eV, log scale)")
+    ax.legend(fontsize=9.5)
+    fig.tight_layout()
+    show_and_save(fig, "06_mass_staircase", lecture_label="Lecture 6")
+
+    predicted = math.exp((k_u - k_d) / 2.0)
+    observed = m_top_eV / m_bottom_eV
+    fig, ax = plt.subplots(figsize=(7, 4.3))
+    ax.set_title("Cross-Check: Predicted vs Observed m_t / m_b", fontsize=12.5,
+                 fontweight="bold", color=NEUTRAL)
+    ax.bar(["Predicted\n(generation formula)", "Observed"], [predicted, observed],
+            color=[ACCENT_GEN[1], SEAM_LINE], alpha=0.85)
+    ax.set_yscale("log")
+    ax.set_ylabel("m_t / m_b  (log scale)")
+    for i, val in enumerate([predicted, observed]):
+        ax.text(i, val * 1.15, f"{val:.1f}", ha="center", fontsize=10, fontweight="bold")
+    limitation_stamp(ax, text="KNOWN LIMITATION: ~13x off (SU(2) isospin not captured)")
+    fig.tight_layout()
+    show_and_save(fig, "06_top_bottom_limitation", lecture_label="Lecture 6")
+
+
 def run():
     banner("LECTURE 6 / PAPER VI -- Fermion Mass Hierarchy")
     print("Professor's opening remark:")
@@ -252,6 +297,7 @@ def run():
     k_l, k_u, k_d, Lambda_l, Lambda_u, Lambda_d = run_fermion_fits()
     prove_su3_casimir_ratio(k_u, k_d)
     top_bottom_ratio_check(k_u, k_d, Lambda_u, Lambda_d)
+    visualize(k_l, k_u, k_d)
 
     subsection("Lecture 6 summary")
     print(f"  Universal formula m_n = M_f exp(-k_f/(2-n)) fitted to all three types.")
