@@ -120,8 +120,6 @@ order-of-magnitude — not precision — estimate of the galactic Berry coupling
   attributed to SU(2) isospin structure not captured by the pure
   generation-hierarchy formula (Lecture 6, stated as an honest limitation)
 
-
-
 # Theoretical Physics Computations: The Chiral Seam Standard Model
 
 ## 1. Baseline Parameters & System Outputs
