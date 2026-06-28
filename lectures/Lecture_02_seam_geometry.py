@@ -283,6 +283,68 @@ def demonstrate_mass_as_crossing_rate():
 # Lecture runner
 # ---------------------------------------------------------------------------
 
+def visualize():
+    """Plot: the curvature step h(s) with gamma5 eigenvalues overlaid, and
+    the chirality-oscillation frequency for electron/muon/tau."""
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from viz_helpers import show_and_save, SPHERICAL, HYPERBOLIC, SEAM_LINE, NEUTRAL
+    import constants as const
+
+    s = np.linspace(-2, 2, 2000)
+    R = 1.0
+    K = np.where(s < 0, 1.0 / R ** 2, -1.0 / R ** 2)
+    h = np.array([calculate_curvature_coefficient(k, R) for k in K])
+
+    fig, ax1 = plt.subplots(figsize=(8, 4.8))
+    ax1.set_title("The Curvature Step h(s) and the Chirality Isomorphism  γ⁵ = 3h",
+                  fontsize=12.5, fontweight="bold", color=NEUTRAL)
+    ax1.plot(s, h, color=NEUTRAL, lw=2.5, zorder=3)
+    ax1.fill_between(s, h, -1/3, where=(s < 0), color=SPHERICAL, alpha=0.18)
+    ax1.fill_between(s, h, 1/3, where=(s >= 0), color=HYPERBOLIC, alpha=0.18)
+    ax1.axvline(0, color=SEAM_LINE, lw=1.5, ls="--", zorder=2)
+    ax1.set_ylim(-0.6, 0.6)
+    ax1.set_xlabel("seam normal coordinate  s")
+    ax1.set_ylabel("curvature coefficient  h(s)")
+    ax1.text(-1.4, -0.45, "h = -1/3\nspherical / left-handed", color=SPHERICAL,
+              fontsize=10, fontweight="bold", ha="center")
+    ax1.text(1.4, 0.45, "h = +1/3\nhyperbolic / right-handed", color=HYPERBOLIC,
+              fontsize=10, fontweight="bold", ha="center")
+    ax1.text(0.08, -0.55, "seam Γ", color=SEAM_LINE, fontsize=10, fontweight="bold")
+    ax2 = ax1.twinx()
+    ax2.set_ylim(-1.8, 1.8)
+    ax2.set_yticks([-1, 1])
+    ax2.set_yticklabels(["γ⁵ = -1", "γ⁵ = +1"], color=SEAM_LINE, fontweight="bold")
+    ax2.set_ylabel("Dirac chirality eigenvalue", color=SEAM_LINE)
+    ax2.grid(False)
+    fig.tight_layout()
+    show_and_save(fig, "02_h_and_gamma5_step", lecture_label="Lecture 2")
+
+    fig, ax = plt.subplots(figsize=(8, 4.8))
+    ax.set_title("Mass IS the Chirality-Oscillation Frequency  ⟨γ⁵(t)⟩ = cos(2mc²t/ℏ)",
+                 fontsize=12.5, fontweight="bold", color=NEUTRAL)
+    presets = [("electron", const.m_electron_kg, "#1B3B6F"),
+               ("muon", const.m_muon_kg, "#5C8A8A"),
+               ("tau", const.m_tau_kg, "#D98A2B")]
+    for label, m_kg, color in presets:
+        omega = 2 * m_kg * const.c ** 2 / const.hbar
+        t_window = np.linspace(0, 6 * np.pi / omega, 600)
+        gamma5_t = np.cos(omega * t_window)
+        t_scaled = t_window / (6 * np.pi / omega)
+        mass_MeV = m_kg * const.c ** 2 / const.eV / 1e6
+        ax.plot(t_scaled, gamma5_t, color=color, lw=2, label=f"{label}  (mc²={mass_MeV:.3g} MeV)")
+    ax.set_xlabel("time (normalized to a few oscillation periods, per particle)")
+    ax.set_ylabel("⟨γ⁵(t)⟩  (curvature branch / chirality)")
+    ax.set_ylim(-1.3, 1.3)
+    ax.legend(loc="lower right", fontsize=9, framealpha=0.9)
+    ax.text(0.02, 1.15, "Heavier particles cross the seam more frequently per unit time\n"
+                          "(periods rescaled per-particle for legibility; true relative\n"
+                          "frequencies span ~6 orders of magnitude from e to τ)",
+             fontsize=8.5, color=NEUTRAL, va="top")
+    fig.tight_layout()
+    show_and_save(fig, "02_chirality_oscillation", lecture_label="Lecture 2")
+
+
 def run():
     banner("LECTURE 2 / PAPER II -- The Chiral Seam and the Dirac Equation")
     print("Professor's opening remark:")
@@ -298,6 +360,7 @@ def run():
     g0, g1, g2, g3, g5 = prove_chirality_isomorphism()
     prove_weyl_decoupling_and_parity(g0, g1, g2, g3, g5)
     demonstrate_mass_as_crossing_rate()
+    visualize()
 
     subsection("Lecture 2 summary")
     print("  h_spherical = -1/3, h_hyperbolic = +1/3, |Delta h| = 2/3   [PROVED]")
