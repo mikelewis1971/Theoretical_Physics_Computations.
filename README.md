@@ -44,7 +44,7 @@ python3 lecture_08_dark_sector.py
 | `lecture_07_mould_gravity.py` | VII | the Mould chain-fountain effect, Berry phase Hamiltonian, emergent graviton, Yukawa gravity correction, hierarchy problem |
 | `lecture_08_dark_sector.py` | VIII | dark matter (Berry curvature) and dark energy (time-variant Berry phase) from the same connection that gives gravity |
 | `masterclass.py` | -- | main runner, walks through all 8 lectures in order |
-| `BUGFIXES.md` | -- | every mathematical error caught and fixed during construction |
+
 
 ## Visuals
 
