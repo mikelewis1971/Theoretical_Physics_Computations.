@@ -257,6 +257,50 @@ def hierarchy_as_stiffness_ratio(xi_H_m):
     print(f"  The hierarchy is not fine-tuned: it is a geometric stiffness ratio.")
 
 
+def visualize(xi_H_m, alpha_H):
+    """Plot: the Mould chain-fountain H_extra=2h relation, and the Yukawa
+    gravity correction at the Higgs length scale (log-log, zoomed)."""
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from viz_helpers import show_and_save, NEUTRAL, SEAM_LINE, HYPERBOLIC
+
+    h_falls = np.linspace(0.01, 1.5, 200)
+    H_extras = np.array([mould_chain_fountain(h)[1] for h in h_falls])
+
+    fig, ax = plt.subplots(figsize=(7.5, 4.5))
+    ax.set_title("The Mould Chain Fountain:  H_extra = 2·h_fall  (exact energy conservation)",
+                 fontsize=12, fontweight="bold", color=NEUTRAL)
+    ax.plot(h_falls, H_extras, color=SEAM_LINE, lw=2.5)
+    ax.plot(h_falls, h_falls, color=NEUTRAL, lw=1.5, ls=":", label="y = h_fall  (for reference)")
+    ax.set_xlabel("fall height  h_fall  (m)")
+    ax.set_ylabel("extra fountain height  H_extra  (m)")
+    ax.legend(fontsize=9.5, loc="upper left")
+    ax.text(0.05, 1.3, "slope = 2 exactly\n(same mechanism as m_i = m_g)", color=SEAM_LINE,
+             fontsize=9.5, fontweight="bold")
+    fig.tight_layout()
+    show_and_save(fig, "07_chain_fountain", lecture_label="Lecture 7")
+
+    r = np.logspace(np.log10(xi_H_m) - 3, np.log10(xi_H_m) + 3, 400)
+    newton = 1.0 / r
+    yukawa_factor = 1 + alpha_H * np.exp(-r / xi_H_m)
+    modified = newton * yukawa_factor
+
+    fig, ax = plt.subplots(figsize=(7.5, 4.5))
+    ax.set_title("Yukawa Modification of Newtonian Gravity at the Higgs Length Scale",
+                 fontsize=12, fontweight="bold", color=NEUTRAL)
+    ax.loglog(r, newton, color=NEUTRAL, lw=2, ls="--", label="pure Newtonian  ∝ 1/r")
+    ax.loglog(r, modified, color=SEAM_LINE, lw=2.2, label="with Yukawa correction")
+    ax.axvline(xi_H_m, color=HYPERBOLIC, lw=1.3, ls=":", label=f"ξ_H ≈ {xi_H_m:.2e} m")
+    ax.set_xlabel("separation  r  (m)")
+    ax.set_ylabel("gravitational potential magnitude (arb. units)")
+    ax.legend(fontsize=9)
+    ax.text(0.02, 0.04, f"α_H ≈ {alpha_H:.1e}  (~20 orders of magnitude below\n"
+                          f"current torsion-balance sensitivity at ~10 μm)",
+             transform=ax.transAxes, fontsize=8.5, color=NEUTRAL)
+    fig.tight_layout()
+    show_and_save(fig, "07_yukawa_gravity", lecture_label="Lecture 7")
+
+
 def run():
     banner("LECTURE 7 / PAPER VII -- The Mould Effect and Emergent Gravity")
     print("Professor's opening remark:")
@@ -273,6 +317,7 @@ def run():
     poschl_teller_zero_mode_reinterpretation()
     xi_H_m, alpha_H = yukawa_modification_of_gravity()
     hierarchy_as_stiffness_ratio(xi_H_m)
+    visualize(xi_H_m, alpha_H)
 
     subsection("Lecture 7 summary")
     print("  H_extra = 2 h_fall  (Mould effect, exact energy conservation).")
