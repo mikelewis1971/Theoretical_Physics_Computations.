@@ -169,6 +169,38 @@ def rho_definition():
     return rho
 
 
+def visualize():
+    """Plot: momentum conservation snapping into a conserved seam axis as P->0."""
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from viz_helpers import show_and_save, SPHERICAL, HYPERBOLIC, SEAM_LINE, NEUTRAL
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4.3))
+    fig.suptitle("From Pair Production (P≈0) to a Conserved Geodesic Axis", fontsize=13,
+                 fontweight="bold", color=NEUTRAL)
+
+    theta = 0.35
+    ax1.annotate("", xy=(np.cos(theta), np.sin(theta)), xytext=(0, 0),
+                 arrowprops=dict(arrowstyle="-|>", color=SPHERICAL, lw=2.5))
+    ax1.annotate("", xy=(-np.cos(theta - 0.5), -np.sin(theta - 0.5)), xytext=(0, 0),
+                 arrowprops=dict(arrowstyle="-|>", color=HYPERBOLIC, lw=2.5))
+    ax1.set_title("P ≠ 0  (small residual total momentum)", fontsize=10.5)
+    ax1.set_xlim(-1.3, 1.3); ax1.set_ylim(-1.3, 1.3); ax1.set_aspect("equal")
+    ax1.axis("off")
+
+    ax2.annotate("", xy=(1, 0), xytext=(0, 0), arrowprops=dict(arrowstyle="-|>", color=SPHERICAL, lw=2.8))
+    ax2.annotate("", xy=(-1, 0), xytext=(0, 0), arrowprops=dict(arrowstyle="-|>", color=HYPERBOLIC, lw=2.8))
+    ax2.plot([-1.3, 1.3], [0, 0], color=SEAM_LINE, lw=1.5, ls="--", zorder=0)
+    ax2.text(0, 0.18, "this line = the chiral seam axis", color=SEAM_LINE,
+              fontsize=9.5, fontweight="bold", ha="center")
+    ax2.set_title("P = 0 exactly  ⟹  conserved geodesic axis", fontsize=10.5)
+    ax2.set_xlim(-1.3, 1.3); ax2.set_ylim(-1.3, 1.3); ax2.set_aspect("equal")
+    ax2.axis("off")
+
+    fig.tight_layout()
+    show_and_save(fig, "01_pair_axis", lecture_label="Lecture 1")
+
+
 def run():
     banner("LECTURE 1 / PAPER I -- The Two-Body Heisenberg Algebra and the Pair Axis")
     print("Professor's opening remark:")
@@ -181,6 +213,7 @@ def run():
     ok_comm = derive_collective_commutators()
     derive_pair_axis_geodesic()
     rho_definition()
+    visualize()
 
     subsection("Lecture 1 summary")
     print("  [rho, P] = 0  and  [X, p] = 0  are PROVED from single-particle QM.")
