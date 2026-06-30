@@ -114,39 +114,65 @@ def full_rotation_curve_formula(kappa_kms=220.0, M_solar=1e12, r_kpc_range=None)
 
 def berry_connection_from_surface_density():
     """
-    Eq 22-24: derives |A| = G*Sigma/v and |B|=kappa/r=G*Sigma/(v*r) from the
-    collective seam-crossing density of a galactic disk with surface density Sigma.
+    Eq 22-24: CORRECTED on re-examination (see
+    lecture_06b_rigorous_corrections.py for the full derivation).
+
+    The original claim here was |A| = G*Sigma/v, |B| = kappa/r =
+    G*Sigma/(v*r). This is dimensionally WRONG: direct unit bookkeeping
+    gives [G*Sigma/v] = (m^3 kg^-1 s^-2)(kg m^-2)/(m s^-1) = s^-1, an
+    inverse time, not the velocity that kappa must be (since |B|=kappa/r
+    must combine with v in v x B to give an acceleration). The formula
+    was missing a length scale.
     """
-    subsection("Eq 22-24: physical origin of the kappa/r scaling")
+    subsection("Eq 22-24: kappa/r scaling -- CORRECTED dimensional analysis")
     print("  Berry phase per orbit at radius r (circumference 2*pi*r):")
     print("     gamma_r = oint_r A.dr = 2*pi*r*|A|                  (Eq 22)")
     print()
-    print("  For a disk of uniform surface density Sigma, collective seam-crossing")
-    print("  rate per unit area n_cross = Sigma*Omega/m * (mc/hbar) = Sigma*v/(m*lambda_C)  (Eq 23)")
+    print("  Direct unit check of the ORIGINAL claim |A| = G*Sigma/v:")
+    print("     [G*Sigma]      = (m^3 kg^-1 s^-2)(kg m^-2) = m s^-2   (acceleration)")
+    print("     [G*Sigma / v]  = (m s^-2)/(m s^-1) = s^-1              (inverse time)")
+    print("  This is NOT a velocity. kappa must have units of velocity (so that")
+    print("  |B|=kappa/r combines with v in v x B to give an acceleration). The")
+    print("  original formula was dimensionally incomplete: it is missing a length.")
     print()
-    print("  giving the Berry connection magnitude:")
-    print("     |A| = G*Sigma / v        =>      |B| = |curl A| ~ G*Sigma/(v*r) = kappa/r   (Eq 24)")
+    print("  CORRECTED form (still structurally motivated, not yet first-principles):")
+    print("     kappa = (G*Sigma/v) * L_coherence            (Eq 24, corrected)")
+    print()
+    print("  where L_coherence is an undetermined coherence length of the")
+    print("  collectively-synchronized seam crossings. This framework does NOT")
+    print("  derive L_coherence -- it is an open parameter, not a prediction.")
     print()
 
     G_si = G_NEWTON
     Sigma_solar_per_pc2 = 100.0
     M_sun_kg = 1.98847e30
     pc_m = 3.0857e16
+    kpc_m = pc_m * 1000
     Sigma_si = Sigma_solar_per_pc2 * M_sun_kg / pc_m ** 2
     v_kms = 200.0
     v_si = v_kms * 1e3
-    kappa_est = G_si * Sigma_si / v_si
-    print(f"  Numerical estimate: Sigma={Sigma_solar_per_pc2} Msun/pc^2, v={v_kms} km/s")
-    print(f"     kappa = G*Sigma/v = {kappa_est:.4e} m/s = {kappa_est/1e3:.2f} km/s")
+    inverse_time_term = G_si * Sigma_si / v_si  # units: s^-1, NOT a velocity
+    # Solve for the L_coherence that WOULD be needed to match the observed kappa,
+    # to show explicitly how large a free parameter is being absorbed:
+    kappa_target = v_si  # taking kappa ~ v_flat ~ 200 km/s as the target to match
+    L_coherence_needed = kappa_target / inverse_time_term
+    print(f"  Numerical illustration: Sigma={Sigma_solar_per_pc2} Msun/pc^2, v={v_kms} km/s")
+    print(f"     (G*Sigma/v) = {inverse_time_term:.4e} s^-1   (NOT yet a velocity)")
+    print(f"     L_coherence needed to reach kappa~{v_kms} km/s = "
+          f"{L_coherence_needed:.3e} m = {L_coherence_needed/kpc_m:.2f} kpc")
     print()
-    print("  This estimate is far smaller than the observed ~200 km/s because the")
-    print("  simple uniform-disk model omits the bulge/halo mass concentration and")
-    print("  collective coherence factors; it demonstrates the correct ORDER-OF-")
-    print("  MAGNITUDE MECHANISM (kappa set by Sigma/v), not a precision fit.")
+    print("  An L_coherence of order a few kpc is not absurd on its face (it is")
+    print("  galaxy-scale), but it is NOT derived here -- it is exactly the free")
+    print("  parameter that was previously hidden inside a dimensionally incomplete")
+    print("  formula. The honest status of this mechanism is a structurally")
+    print("  motivated FORM (the v x B term in the Berry-phase Hamiltonian) with")
+    print("  an undetermined coupling, not a parameter-free numerical prediction.")
     print()
     print("  Remark: this has the FORM of MOND (Milgrom 1983) but a DIFFERENT")
     print("  mechanism -- MOND modifies F=ma phenomenologically; here the v x B term")
-    print("  is derived from the Berry phase Hamiltonian of Lecture 7.")
+    print("  is derived from the Berry phase Hamiltonian of Lecture 7. Neither")
+    print("  MOND's a_0 nor this framework's L_coherence is currently derived from")
+    print("  first principles in their respective theories.")
 
 
 # ---------------------------------------------------------------------------
@@ -277,7 +303,7 @@ def visualize():
     M_sun_kg = 1.98847e30
     kpc_m = 3.0857e19
     kappa = 220.0 * 1e3
-    M = 1e12 * M_sun_kg
+    M = 6e10 * M_sun_kg   # realistic disk mass within tens of kpc (Milky-Way-like)
     r_kpc = np.linspace(0.3, 60, 400)
     r_m = r_kpc * kpc_m
 
@@ -335,6 +361,7 @@ def run():
     derive_dark_energy_acceleration()
     cosmological_constant_from_seam_asymmetry()
     cp_violation_berry_connection()
+    visualize()
     summarize_complete_equation()
 
     subsection("Lecture 8 summary")
